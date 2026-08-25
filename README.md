@@ -11,7 +11,7 @@ Install into the current project for Codex:
 
 ```bash
 npx skills add graphrun/skills \
-  --skill author-mockflow-models \
+  --skill author-graphrun-models \
   --agent codex
 ```
 
@@ -19,7 +19,7 @@ Install globally:
 
 ```bash
 npx skills add graphrun/skills \
-  --skill author-mockflow-models \
+  --skill author-graphrun-models \
   --agent codex \
   --global
 ```
@@ -33,7 +33,7 @@ npx skills add graphrun/skills --list
 Update an existing installation:
 
 ```bash
-npx skills update author-mockflow-models
+npx skills update author-graphrun-models
 ```
 
 ## Requirements
@@ -47,7 +47,7 @@ Installing this repository adds the agent instructions only. It does not configu
 ## Skill contents
 
 ```text
-.agents/skills/author-mockflow-models/
+.agents/skills/author-graphrun-models/
 ├── SKILL.md
 ├── agents/
 │   └── openai.yaml

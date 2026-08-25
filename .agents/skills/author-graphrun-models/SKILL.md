@@ -1,5 +1,5 @@
 ---
-name: author-mockflow-models
+name: author-graphrun-models
 description: Inspect, author, validate, simulate, map to implementation, and explain graphRun distributed-system models through the graphRun MCP. Use when creating or changing diagrams, components, ports, handlers, interactions, contract schemas and operations, data resources, message channels, journeys, scenarios, deployment views, implementation mappings, or when recovering from graphRun MCP validation and version-token failures.
 ---
 

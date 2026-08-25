@@ -1,4 +1,4 @@
-<!-- Canonical contract authoring patterns for MockFlow MCP operations. -->
+<!-- Canonical contract authoring patterns for MCP operations. -->
 # Contract authoring
 
 Always call `get_contract_operation_contract` for the selected operation before `apply_contract_operations`. Discovery returns the strict schema, conditional requirements, reference rules, and validated examples.
@@ -14,7 +14,7 @@ Always call `get_contract_operation_contract` for the selected operation before 
 
 ## JSON Schema patterns
 
-Author every `pattern` and `patternProperties` key in MockFlow's bounded export-safe subset. The MCP rejects an unsafe pattern before saving the contract draft.
+Author every `pattern` and `patternProperties` key in the MCP's bounded export-safe subset. The MCP rejects an unsafe pattern before saving the contract draft.
 
 - Anchor the full value with `^` and `$` and keep the pattern at most 256 characters.
 - Do not use groups `()`, alternation `|`, counted repetitions such as `{4,}`, or backreferences such as `\1`.
@@ -133,7 +133,7 @@ A Queue consumer may declare explicit acknowledgement when its arrival handler o
 }
 ```
 
-For a producer, the selected handler must emit the selected edge. Queue routes use enqueue/asynchronous-message semantics; topic routes use publish/event-publish semantics. `resource_key` and `channel_address` declare the logical channel; the selected graph edge associates it with the queue/topic node, so there is no separate channel-creation operation. MockFlow derives the logical message registry deterministically from complete contract declarations and graph broker nodes.
+For a producer, the selected handler must emit the selected edge. Queue routes use enqueue/asynchronous-message semantics; topic routes use publish/event-publish semantics. `resource_key` and `channel_address` declare the logical channel; the selected graph edge associates it with the queue/topic node, so there is no separate channel-creation operation. The MCP derives the logical message registry deterministically from complete contract declarations and graph broker nodes.
 
 ## Artifact-backed examples
 

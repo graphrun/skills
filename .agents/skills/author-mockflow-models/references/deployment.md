@@ -1,4 +1,4 @@
-<!-- Deployment overlay workflow for MockFlow physical-view authoring. -->
+<!-- Deployment overlay workflow for physical-view authoring. -->
 # Deployment views
 
 Deployment views are physical overlays on the validated logical model.

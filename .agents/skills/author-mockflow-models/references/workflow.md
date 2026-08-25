@@ -1,4 +1,4 @@
-<!-- Operating sequence for safe end-to-end MockFlow MCP authoring. -->
+<!-- Operating sequence for safe end-to-end MCP authoring. -->
 # End-to-end workflow
 
 ## Inspect

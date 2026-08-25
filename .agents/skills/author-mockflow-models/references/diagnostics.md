@@ -1,4 +1,4 @@
-<!-- Diagnostic playbook for actionable MockFlow MCP failure recovery. -->
+<!-- Diagnostic playbook for actionable MCP failure recovery. -->
 # Diagnostics
 
 ## Reference failures

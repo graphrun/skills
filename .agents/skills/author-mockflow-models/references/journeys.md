@@ -1,4 +1,4 @@
-<!-- Scenario and journey practices for proving MockFlow model behavior. -->
+<!-- Scenario and journey practices for proving model behavior through the MCP. -->
 # Journeys and scenarios
 
 Use scenarios as executable acceptance evidence, not decorative examples.

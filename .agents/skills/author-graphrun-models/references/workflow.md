@@ -4,9 +4,10 @@
 ## Inspect
 
 1. `list_diagrams` and select the intended diagram. Supply its advertised `query`, `cursor`, and optional `limit` fields; `limit` is 1–50 and defaults to 10.
-2. `get_graph_draft` for the current document, response-scoped `reference_bindings`, and version token.
-3. `get_graph_context` for bounded neighboring objects, valid bound references, and its own response-scoped map.
-4. Read the matching authoring guide or operation contract before composing writes.
+2. Call `get_graph_context` first with filters and only the necessary sections. When relationships are needed, request `relationship_mode: "references"` so edges stay in the bounded relationship catalog instead of being duplicated inline.
+3. Use the context response's version token and binding map to drive focused `apply_graph_operations` batches. The context intentionally excludes position, width, and height.
+4. Reserve `get_graph_draft` for complete-document replacement, graph-wide or cross-page rebasing, and explicit lossless debugging. It is the lossless read and retains positions and dimensions.
+5. Read the matching authoring guide or operation contract before composing writes.
 
 ## Author
 
@@ -19,9 +20,9 @@ Build in executable vertical slices. A slice may require more than one batch whe
 5. Scenario inputs and fixtures that exercise the route.
 6. Optional deployment overlay after logical behavior is stable.
 
-V2 graph, graph-context, and contract reads default to `reference_format: "bound"`. Use each returned `ref:<name>` only while echoing that same response's complete `reference_bindings` map unchanged into the related graph, contract, or deployment operation batch. The returned map has at most 512 entries and is always valid as one batch input. When `reference_bindings_truncated` is true, the reported `omitted_reference_binding_count` references remain expanded as usable `mfref2.*` values; request a narrower graph context when more bound names are useful. The server stores no map or session state. A reread replaces the map: discard the old one rather than merging maps across responses. Use `reference_format: "expanded"` only for debugging or an explicitly lossless whole-document workflow.
+V2 graph, graph-context, contract, and deployment reads default to `reference_format: "bound"`. Generated binding names are response-scoped compact handles such as `r0`; use each returned `ref:<name>` only while echoing that same response's complete `reference_bindings` map unchanged into the related graph, contract, or deployment operation batch. The returned map has at most 512 entries and is always valid as one batch input. When `reference_bindings_truncated` is true, the reported `omitted_reference_binding_count` references remain expanded as usable `mfref2.*` values; request a narrower graph context when more bound names are useful. The server stores no map or session state. A reread replaces the map: discard the old one rather than merging maps across responses. Use `reference_format: "expanded"` only for debugging or an explicitly lossless whole-document workflow.
 
-For dependent graph batches only, a committed `apply_graph_operations` response may feed the next graph batch without an intervening reread when it returns `validation.valid: true`, its canonical version token, and `reference_bindings_truncated: false`. Echo that response's entire map unchanged and use only references it returned. Reread at a surface boundary, after an unexpected result or layout, before contract authoring, and before final verification. Contract, deployment, and scenario mutations still require their documented reread flow.
+For dependent graph batches only, a committed `apply_graph_operations` response may feed the next graph batch without an intervening reread when it returns `validation.valid: true`, its canonical version token, and `reference_bindings_truncated: false`. Echo that response's entire map unchanged and use only references it returned. Reread focused graph context at a surface boundary, after an unexpected result or layout, before contract authoring, and before final verification. Contract, deployment, and scenario mutations still require their documented focused reread flow.
 
 Use same-batch `local:<name>` aliases for newly created contract objects. Bound references resolve before these local aliases. After commit, discard every local alias and reread for a fresh bound map and CAS token.
 
@@ -31,7 +32,7 @@ Treat `committed` as the public write outcome, not a quality gate. A successful 
 
 ## Verify
 
-- Reread the mutated surface, discard the submitted map, and compare the intended object counts and references using the new response map.
+- Reread the smallest focused view of the mutated surface, discard the submitted map, and compare the intended object counts and references using the new response map. For graph operations, use filtered `get_graph_context` unless verification genuinely requires a graph-wide or cross-page lossless document.
 - Run `validate_graph` and require `valid: true` for structural graph completion.
 - Run `get_contract_gap_report`; blocking must be zero before approval. If the user requested comprehensive API, data, message, or boundary contracts, resolve every `contract.coverage_unbound_graph_boundary` item whose target edge or interaction belongs to a requested protocol unless the user explicitly accepts it as out of scope. Do not require unrelated protocols merely to reach zero total warnings, and do not treat `approvalGate.eligible: true` as proof that requested coverage is complete.
 - When component outputs are in scope, inspect `componentOutputs.bindings` directly and compare it with the selected output-port inventory; a clean gap report is insufficient.
@@ -46,7 +47,7 @@ Graph, contract, scenario, and deployment surfaces have independent version toke
 
 1. Read the error's `commit_status` and `latest_version_token`.
 2. If committed, do not repeat the batch; reread and verify the intended objects.
-3. If not committed, reread, rebase onto the latest draft, and retry with the new token.
-4. If status is unknown, reread before doing anything else.
+3. If not committed, reread focused context, rebase onto the latest state, and retry with the new token. Use a full graph draft only for a graph-wide or cross-page rebase.
+4. If status is unknown, reread the smallest focused surface before doing anything else.
 
 Never substitute an old token, an old bound map, an opaque reference from another grant, or an identifier copied from another diagram.

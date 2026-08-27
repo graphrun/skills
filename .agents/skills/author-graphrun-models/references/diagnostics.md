@@ -4,7 +4,7 @@
 ## Reference failures
 
 - `mcp.input.value_invalid`: inspect the exact path and operation contract; do not add guessed fields.
-- reference unavailable or `mcp-local-*`: reread the draft and use the returned bound reference plus that response's `reference_bindings` map. Use `reference_format: "expanded"` only to inspect the underlying opaque reference.
+- reference unavailable or `mcp-local-*`: reread the smallest focused surface and use the returned bound reference plus that response's `reference_bindings` map. For graph work, prefer filtered `get_graph_context`; use `get_graph_draft` only when recovery genuinely requires the complete lossless document. Use `reference_format: "expanded"` only to inspect the underlying opaque reference.
 - `mcp.input.reference_binding_unknown`: the operation uses a `ref:<name>` absent from the submitted map. Reread, discard the old map, and echo the new response map unchanged.
 - `reference_bindings_truncated: true` is not an error: the map is capped at 512 reusable entries, `omitted_reference_binding_count` reports the excess, and omitted structural references remain expanded. Use an omitted `mfref2.*` value directly or request a narrower graph context.
 - A failure at `/reference_bindings/<name>` means the map value is malformed, stale, recursive, or unavailable to the current grant. Never merge maps, copy one from another connection, or retry the same map.
@@ -31,7 +31,7 @@
 
 - `graph.version.unsupported`: stop authoring and report the artifact. Pre-v7 graphs have no compatibility or migration path. Do not use `replace_graph_draft` as a converter or fallback.
 - An ordinary `apply_graph_operations` validation failure rejects the atomic candidate before persistence. Correct the reported fields and retry with the same token; a concurrent write will still produce a stale-token conflict.
-- Stale token: reread and rebase once.
+- Stale token: reread focused context and rebase once. Use a full graph draft only for a graph-wide or cross-page rebase.
 - `commit_status: committed`: verify by rereading; never repeat the mutation batch.
 - `commit_status: not_committed`: correct the cause and retry with the latest token.
 - Unknown outcome: reread before any write.

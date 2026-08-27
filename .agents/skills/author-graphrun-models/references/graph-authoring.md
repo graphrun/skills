@@ -8,7 +8,7 @@ Prefer one atomic operation batch with `local:<name>` aliases for newly-created 
 ## Components and ports
 
 - Discover types with `search_component_types`; inspect a selected type with `get_component_type`.
-- Treat instance ports and the response-scoped `reference_bindings` in `get_graph_draft` as authoritative. Echo the entire map unchanged into each graph operation batch that uses `ref:<name>`; when truncation is reported, unbound identifiers remain usable in expanded `mfref2.*` form or through a narrower `get_graph_context` read.
+- Treat instance ports and the response-scoped `reference_bindings` in filtered `get_graph_context` as authoritative for focused operations. Request only the necessary sections and use `relationship_mode: "references"` when relationship identities are needed. Echo the entire map unchanged into each graph operation batch that uses `ref:<name>`; when truncation is reported, unbound identifiers remain usable in expanded `mfref2.*` form or through a narrower context read.
 - A semantic alias is `<component-type>.<catalog-port-id>`, for example `service.publishOut` or `database.queryIn`.
 - If an alias is rejected, reread the component type/version and use the returned current opaque port reference.
 
@@ -57,13 +57,13 @@ A connected line without the corresponding handler action is visual documentatio
 
 ## Safe mutation loop
 
-1. Read graph plus its bound-reference map and version token.
+1. Read filtered graph context plus its bound-reference map and version token. Request only the object kinds, component types or references, and sections needed for this operation batch.
 2. Apply the smallest coherent operation batch, echoing that map when using `ref:<name>`.
 3. For a dependent graph batch, optionally chain from this response only when `committed: true`, `validation.valid: true`, and its returned binding map is untruncated; otherwise reread.
-4. At a surface boundary or before final verification, reread, discard the old map, and use the replacement map and references.
+4. At a surface boundary or before final verification, reread focused context, discard the old map, and use the replacement map and references.
 5. Run `validate_graph`.
 6. Resolve errors before contract authoring; record non-blocking warnings for the final explanation.
 
 Use `apply_graph_layout` only for layout. Do not encode semantic behavior through positioning or labels. Reread and validate again after applying layout because the layout call commits a new graph version.
 
-The server never persists `reference_bindings`. `local:<name>` still means a same-batch identity and resolves after bound references. Use `reference_format: "expanded"` only to debug an opaque reference or prepare a whole-document operation that does not accept bindings.
+The server never persists `reference_bindings`. `local:<name>` still means a same-batch identity and resolves after bound references. Use `get_graph_draft` only for complete-document replacement, graph-wide or cross-page rebasing, or explicit lossless debugging; it retains geometry that focused context omits. Use `reference_format: "expanded"` only to debug an opaque reference or prepare a whole-document operation that does not accept bindings.

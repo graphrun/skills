@@ -25,7 +25,11 @@
 - Schema/resource missing: upsert earlier in the same batch or use a current persisted reference.
 - Cache: provide key template and value schema; optionally choose invalidation, and remove unsupported upsert semantics.
 - Entity: provide at least one identifier schema.
-- Transaction semantics implicit: change the operation to `not_required` or explicitly model the resource's unsupported transaction semantic as directed.
+- `graph.database.batch_invalid`: supply 1–32 rows with unique IDs, supported write operations, and valid record pointers.
+- `graph.database.batch_handler_unsupported`: clear Database `writeIn` actions and catches with `remove_port_handler`; put orchestration and recovery in the caller.
+- `data_operation.atomic_batch_undeclared`: keep the Database batch and declare `operation: "write"`, `transactional: "atomic_batch"`; do not downgrade its guarantee to `not_required`.
+- `data_operation.atomic_batch_mismatch` or `data_resource_binding.atomic_batch_scope_invalid`: target a valid Database batch write on one table or collection declaring `write`; `atomic_batch` cannot describe another store or a single write.
+- Transaction semantics implicit on a single write: use `not_required` when no transaction guarantee is intended. If general transactions are required, explicitly document the unsupported guarantee; never silently substitute a bounded batch for multi-call or multi-collection behavior.
 
 ## Version and commit failures
 

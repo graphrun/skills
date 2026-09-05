@@ -45,11 +45,41 @@ Use 1–16 RFC 6901 pointers with literal JSON values. Assignments run in list o
 
 ### Database operations
 
-Current `database@1.3` has independent `readOperation` (`get | query`) and `writeOperation` (`insert | update | upsert | delete`) settings. Configure both when one Database instance receives both `database.queryIn` and `database.writeIn`; this avoids the legacy single-operation port mismatch. Existing database@1.2 nodes keep their `operation` field until explicitly upgraded. On upgrade, preserve the legacy operation in the matching read or write field and use the catalog default for the other side.
+Current `database@1.3` has independent `readOperation` (`get | query`) and `writeOperation` (`insert | update | upsert | delete | atomic-batch`) settings. Configure both when one Database instance receives both `database.queryIn` and `database.writeIn`; this avoids the legacy single-operation port mismatch. Existing database@1.2 nodes keep their `operation` field until explicitly upgraded. On upgrade, preserve the legacy operation in the matching read or write field and use the catalog default for the other side. Atomic batch is already part of the current database@1.3 catalog.
 
 Database reads merge into the current payload: `get` preserves request fields and writes its result at `/record`; `query` preserves them and writes the array at `/records`. Branch on those result pointers, not on a top-level field from the returned record.
 
-Do not author handlers on Database `queryIn`, Cache `lookupIn`, or Object Store `getIn`. These intrinsic read handlers own their result envelopes and return routes. Put result branching, payload shaping, and HTTP status responses on the calling Service or Gateway. If an intrinsic read handler was authored accidentally, use `remove_port_handler`; the MCP restores the canonical empty `catalog_default` handler even when the input port is optional. Database, Cache, and Object Store write handlers remain customizable.
+Do not author handlers on Database `queryIn`, Cache `lookupIn`, or Object Store `getIn`. These intrinsic read handlers own their result envelopes and return routes. Put result branching, payload shaping, and HTTP status responses on the calling Service or Gateway. If an intrinsic handler was authored accidentally, use `remove_port_handler`; the MCP restores the canonical empty `catalog_default` handler even when the input port is optional. Database single-write, Cache write, and Object Store write handlers remain customizable. Database batch `writeIn` rejects custom actions and catches.
+
+### Atomic database batches
+
+Read `get_component_type` for `database` and `get_graph_operation_contract` for `update_component`. Set its `configuration` to include the following fields (preserve unrelated settings):
+
+```json
+{
+  "collection": "orders",
+  "keyPath": "/id",
+  "writeOperation": "atomic-batch",
+  "batchOperations": [
+    { "id": "insert-order", "operation": "insert", "recordPath": "/newOrder" },
+    { "id": "confirm-order", "operation": "update", "recordPath": "/confirmedOrder" }
+  ]
+}
+```
+
+Supply 1–32 rows with unique nonempty IDs. Each row has only `id`, `operation` (`insert | update | upsert | delete`), and `recordPath`, an RFC 6901 JSON Pointer into the incoming payload. An empty pointer selects the whole payload. Every row reuses the configured collection and `keyPath`, evaluated inside the selected record. Delete rows must select an object containing that key. An update replaces the stored record; send the complete intended record, not a partial patch.
+
+Use `add_interaction` with explicit `service.commandOut` → `database.writeIn` and `database.writtenOut` → `service.responseIn` endpoints. The calling service owns the `call` and final `respond`. Batch `writeIn` uses the intrinsic handler with empty actions and catches; use `remove_port_handler` to clear an existing override in the same graph-operation batch when switching modes. Validation, later calls, and recovery belong in the caller.
+
+Rows execute in order against staged records, so an insert followed by an update to the same key succeeds. All rows commit in one scheduler operation or all are discarded at the first failure. The incoming payload is preserved. The caller's catch receives the existing database code, such as `database.record_exists` or `database.record_missing`; do not invent a generic transaction failure code. There are no intermediate calls, waits, or visible partial state. No Begin/Commit/Rollback actions, multi-call transactions, multiple collections, or isolation levels are supported.
+
+An MCP operation batch atomically saves authoring changes. A Database atomic batch executes writes during a journey. These are separate mechanisms. Declare the runtime batch's contract as described in [contracts.md](contracts.md), then prove commit and rollback with [journeys.md](journeys.md).
+
+### Gateway round-robin calls
+
+For a Gateway handler, use `{ "id": "balance", "kind": "call_next_backend" }`. It has no edge or await-port setting; read `get_graph_operation_contract` for `upsert_handler_action` or `set_port_handler`. Connect at least one synchronous request from `gateway.requestOut`, each with a valid paired response into `gateway.responseIn`. Conditional backend edges are rejected.
+
+The action selects exactly one backend, waits for its response, and continues the handler. Backends are ordered by ascending edge priority, then stable edge ID. A per-gateway cursor cycles A/B/C/A and resets each run. Retries stay on the selected backend; the next action execution advances selection. Keep a final `respond` to the original caller. Explicit `call` remains available, and no second routing-mode switch is needed. Potential routes include every eligible backend; actual route evidence identifies only the selected connection.
 
 Handler conditions and value references use `payload` for the current mutable value. Use `input` for the immutable payload captured when that handler first arrived; it remains stable across call/await, retry, catch, and resume.
 

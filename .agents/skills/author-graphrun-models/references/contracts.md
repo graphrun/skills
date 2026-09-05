@@ -151,7 +151,9 @@ First-class contract examples point into immutable evidence; inline `json_exampl
 - `mapped_data_resource_refs` may identify only other authored data resources. Graph linkage comes from data-operation targets, never from this field.
 - `implementation_mapping` is strict: repository, package, path, symbol, ref, schemaFileRef, and migrationRef only, with at least one location field populated.
 
-For a data operation, choose a resource operation it declares. Use `transactional: not_required` unless the resource explicitly models required transaction semantics according to the returned operation contract.
+For a data operation, choose a resource operation it declares. Single writes normally use `transactional: "not_required"`. A Database configured with `writeOperation: "atomic-batch"` must use `operation: "write"` and `transactional: "atomic_batch"`, targeting `database.writeIn` and its matching request and `writtenOut` result edges. The resource must be one table or collection declaring `write`. Do not use `atomic_batch` on reads, single writes, Cache, or Object Store. `required` denotes general transaction guarantees, which remain unsupported; a bounded batch does not imply multi-call or multi-collection transactions.
+
+The single-write example below uses `not_required`. For the atomic-batch configuration in [graph-authoring.md](graph-authoring.md), use `atomic_batch` instead; `get_contract_operation_contract` for `add_data_operation` returns a matching `database_atomic_batch` template. Do not mark the supported bounded batch as an unsupported general transaction.
 
 ```json
 {

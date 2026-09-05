@@ -5,6 +5,8 @@ An agent skill for inspecting, authoring, validating, simulating, mapping to imp
 
 The skill teaches coding agents the safe graphRun authoring workflow: live discovery, graph and contract operations, reference bindings, compare-and-swap tokens, executable scenarios, deployment views, validation, and failure recovery.
 
+Behavior guidance includes Gateway round-robin calls and atomic Database batches: 1–32 ordered writes to one collection, caller-owned recovery, matching data contracts, and commit/rollback journey evidence. General transactions remain unsupported.
+
 ## Install
 
 Install into the current project for Codex:

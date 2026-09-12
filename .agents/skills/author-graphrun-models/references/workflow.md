@@ -28,7 +28,7 @@ Use same-batch `local:<name>` aliases for newly created contract objects. Bound 
 
 For several HTTP operations, use `upsert_http_contracts` with 1–25 definitions and one top-level token/map instead of rotating the CAS token after each operation.
 
-Treat `committed` as the public write outcome, not a quality gate. A successful persistent mutation returns `committed: true`; a dry run returns `committed: false`. Structurally valid incremental contract writes may commit while `gap_report_delta.after.blocking` remains nonzero. Inspect `introduced_items` as well as `resolved_item_ids`, then reread the gap report. A mutation that leaves a CAS-managed draft also returns its canonical version token. A deletion does not invent a token for a draft that no longer exists.
+For tools advertising `committed`, treat it as the public write outcome, not a quality gate. A successful persistent mutation returns `committed: true`; a dry run returns `committed: false`. Promise-suite writes and regression saves use their own persistence acknowledgments and focused rereads; see [Promises and challenges](promises.md). Structurally valid incremental contract writes may commit while `gap_report_delta.after.blocking` remains nonzero. Inspect `introduced_items` as well as `resolved_item_ids`, then reread the gap report. A mutation that leaves a CAS-managed draft also returns its canonical version token. A deletion does not invent a token for a draft that no longer exists.
 
 ## Verify
 

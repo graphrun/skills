@@ -1,6 +1,6 @@
 ---
 name: author-graphrun-models
-description: Inspect, author, validate, simulate, map to implementation, and explain graphRun distributed-system models through the graphRun MCP. Use when creating or changing diagrams, components, ports, handlers, interactions, contract schemas and operations, data resources, message channels, journeys, scenarios, deployment views, implementation mappings, or when recovering from graphRun MCP validation and version-token failures.
+description: Inspect, author, validate, simulate, map to implementation, and explain graphRun distributed-system models through the graphRun MCP. Use when creating or changing diagrams, components, ports, handlers, interactions, contract schemas and operations, data resources, message channels, journeys, scenarios, architecture promises, fault challenges, regression cases, deployment views, implementation mappings, or when recovering from graphRun MCP validation and version-token failures.
 ---
 
 # Author graphRun Models
@@ -29,12 +29,12 @@ For implementation mapping, use the manifest-linked implementation-context resou
 - Discard bound maps after every reread and use the replacement response map. Request `reference_format: "expanded"` only as a debugging escape hatch or for a lossless whole-document workflow that does not accept bindings.
 - Do not reuse `mcp-local-*` values. For an eligible dependent graph batch, use the committed response's bound references with its exact map; otherwise reread focused graph context and use its returned references.
 - Never blindly retry a mutation after a projection or transport failure. Inspect commit status and latest version token first.
-- Require `committed: true` after a successful persistent mutation and `committed: false` after a dry run. For a CAS-managed draft, use the returned canonical version token; do not expect deletions to fabricate one.
+- For mutation tools advertising `committed`, require `committed: true` after a persistent write and `committed: false` after a dry run. Promise-suite writes instead acknowledge the saved document and suite token; regression saves acknowledge the saved case reference. Reread those surfaces to verify persistence. For a CAS-managed draft, use the returned canonical version token; do not expect deletions to fabricate one.
 - For contract writes, inspect `gap_report_delta.after.blocking` and `introduced_items`; a committed incremental save may still be blocked.
 - A graph edge is not executable by itself. The arrival handler must own response/failure actions, and a message producer handler must own an `emit` action for its selected edge.
 - Use Gateway `call_next_backend` for round-robin calls and Database `writeOperation: "atomic-batch"` for 1–32 ordered writes to one collection. Batch `writeIn` is intrinsic: no custom actions or catches. Declare its data operation as `write` with `transactional: "atomic_batch"`; general transactions remain unsupported. Read the graph, contract, and journey references before authoring these behaviors.
 - Use graph.v7 `assign` actions for bounded literal payload changes. Keep assignment order intentional because later actions and conditions see the updated payload.
-- Treat graph.v7 and `mockflow.mcp.scenario-run.v5` as the only active graph and run schemas. Follow the live tool schemas instead of requesting retired aliases or previous envelopes.
+- Use graph.v7 for graphs and `mockflow.mcp.scenario-run.v5` for ordinary scenario-run responses. Fault exploration and regression tools have separate schemas and execution-version sets; preserve their returned versions as described in [promises.md](references/promises.md). Follow live tool schemas instead of requesting retired aliases or previous envelopes.
 - Pre-v7 graph documents have no compatibility or migration path in the authoring tools. If a read returns one, stop and report the unsupported artifact; never convert, patch, or write it as part of normal authoring.
 - Prefer semantic aliases such as `service.publishOut` only when the current component catalog advertises that port. Use current opaque references otherwise.
 - Use `get_graph_operation_contract` or `get_contract_operation_contract` for exact operation shapes. Do not guess conditional fields.
@@ -48,6 +48,7 @@ For implementation mapping, use the manifest-linked implementation-context resou
 - Read [branding.md](references/branding.md) when updating public product naming or auditing compatibility identifiers.
 - Read [graph-authoring.md](references/graph-authoring.md) when changing components, handlers, ports, edges, or layout.
 - Read [contracts.md](references/contracts.md) for HTTP, message, schema, data-resource, output-binding, and diagnostic examples.
+- Read [promises.md](references/promises.md) for promise authoring, four fault kinds, source tokens, saved cases, and original/current comparison.
 - Read [journeys.md](references/journeys.md) for scenario creation, deterministic execution, and coverage evidence.
 - Read [deployment.md](references/deployment.md) for deployment overlays and fidelity validation.
 - Read [implementation-mapping.md](references/implementation-mapping.md) when matching an existing repository to MCP targets or applying active implementation mappings.

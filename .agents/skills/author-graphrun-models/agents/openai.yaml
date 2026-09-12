@@ -1,4 +1,4 @@
 interface:
   display_name: "Author graphRun Models"
-  short_description: "Author, map, and validate graphRun system models"
-  default_prompt: "Use $author-graphrun-models to inspect, clarify material ambiguity, author or map, validate, and explain this graphRun system model safely."
+  short_description: "Author, map, and verify graphRun behavior and promises"
+  default_prompt: "Use $author-graphrun-models to inspect, clarify material ambiguity, author or map, validate, and explain this graphRun system model, including requested promises, fault challenges, and regression cases."

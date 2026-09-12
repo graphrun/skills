@@ -45,3 +45,5 @@ Database fixtures are collection-keyed objects: `{ "orders": { "ord-1": { "id": 
 Use the live MCP tool input schemas plus `get_scenario_authoring_context` for exact create/update fields; there is no graph- or contract-operation schema to reuse for scenarios. If the requested scope proves only success, report failure/timeout coverage as deferred rather than implying it was executed.
 
 Use `create_checkpoint` only after graph, scenario, and contract drafts are stable and validated. Retain the returned pinned snapshot references for examples and approval evidence.
+
+For authored architecture expectations, automatic fault exploration, and saved original/current comparisons, follow [promises.md](promises.md). A completed journey does not imply its promises passed.

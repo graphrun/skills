@@ -17,7 +17,7 @@ Full detail defaults to 25 events. Use `event_filter` to select kinds, severitie
 
 Every evaluated branch exposes `condition_result`; `decision_coverage.entries` reports evaluation and selection counts, readable route labels, and a bounded condition summary without exposing non-null compared literals. `DB_RESULT` events expose safe result shape, found/count, dispatch mode, and whether a result route was dispatched. An intentionally unselected alternative is not a warning.
 
-For `mockflow.mcp.scenario-run.v5`, read `run.failure_digest.entries[].incident_count` as distinct failures grouped by code, attempt, and causal lineage. `activation_count` counts affected handler activations and `evidence_event_count` counts propagated trace evidence; do not report either as an incident total. `run.failure_digest.distinct_code_count` is the number of failure codes before the 50-entry bound.
+For ordinary scenario-run responses, read `run.failure_digest.entries[].incident_count` as distinct failures grouped by code, attempt, and causal lineage. `activation_count` counts affected handler activations and `evidence_event_count` counts propagated trace evidence; do not report either as an incident total. `run.failure_digest.distinct_code_count` is the number of failure codes before the 50-entry bound.
 
 ## Coverage
 

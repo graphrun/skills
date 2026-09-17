@@ -1,9 +1,9 @@
 ---
 name: author-graphrun-models
-description: Inspect, author, validate, simulate, map to implementation, and explain graphRun distributed-system models through the graphRun MCP. Use when creating or changing diagrams, components, ports, handlers, interactions, contract schemas and operations, data resources, message channels, journeys, scenarios, architecture promises, fault challenges, regression cases, deployment views, implementation mappings, or when recovering from graphRun MCP validation and version-token failures.
+description: Inspect, author, validate, simulate, map to implementation, and explain Graphrun distributed-system models through the Graphrun MCP. Use when creating or changing diagrams, components, ports, handlers, interactions, contract schemas and operations, data resources, message channels, journeys, scenarios, architecture promises, fault challenges, regression cases, deployment views, implementation mappings, or when recovering from Graphrun MCP validation and version-token failures.
 ---
 
-# Author graphRun Models
+# Author Graphrun Models
 
 Use the MCP as the source of live state and this skill as the operating procedure. Build executable system behavior, not a visual-only diagram.
 
@@ -34,7 +34,7 @@ For implementation mapping, use the manifest-linked implementation-context resou
 - A graph edge is not executable by itself. The arrival handler must own response/failure actions, and a message producer handler must own an `emit` action for its selected edge.
 - Use Gateway `call_next_backend` for round-robin calls and Database `writeOperation: "atomic-batch"` for 1–32 ordered writes to one collection. Batch `writeIn` is intrinsic: no custom actions or catches. Declare its data operation as `write` with `transactional: "atomic_batch"`; general transactions remain unsupported. Read the graph, contract, and journey references before authoring these behaviors.
 - Use graph.v7 `assign` actions for bounded literal payload changes. Keep assignment order intentional because later actions and conditions see the updated payload.
-- Use graph.v7 for graphs and `mockflow.mcp.scenario-run.v5` for ordinary scenario-run responses. Fault exploration and regression tools have separate schemas and execution-version sets; preserve their returned versions as described in [promises.md](references/promises.md). Follow live tool schemas instead of requesting retired aliases or previous envelopes.
+- Use graph.v7 for graphs. For ordinary scenario-run responses, follow the schema advertised by the live tool and preserve its returned schema identifier and version. Fault exploration and regression tools have separate schemas and execution-version sets; preserve their returned versions as described in [promises.md](references/promises.md). Follow live tool schemas instead of requesting retired aliases or previous envelopes.
 - Pre-v7 graph documents have no compatibility or migration path in the authoring tools. If a read returns one, stop and report the unsupported artifact; never convert, patch, or write it as part of normal authoring.
 - Prefer semantic aliases such as `service.publishOut` only when the current component catalog advertises that port. Use current opaque references otherwise.
 - Use `get_graph_operation_contract` or `get_contract_operation_contract` for exact operation shapes. Do not guess conditional fields.
